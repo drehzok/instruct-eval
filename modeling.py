@@ -245,14 +245,13 @@ class LlamaModel(SeqToSeqModel):
             self.tokenizer = LlamaTokenizer.from_pretrained(self.model_path)
         if self.model is None:
             args = {}
+            args.update(device_map="auto")
             if self.load_8bit:
-                args.update(device_map="auto", load_in_8bit=True)
+                args.update(load_in_8bit=True)
             self.model = LlamaForCausalLM.from_pretrained(self.model_path, **args)
             if self.lora_path:
                 self.model = PeftModel.from_pretrained(self.model, self.lora_path)
             self.model.eval()
-            if not self.load_8bit:
-                self.model.to(self.device)
 
     def run(self, prompt: str, **kwargs) -> str:
         if self.use_template:
